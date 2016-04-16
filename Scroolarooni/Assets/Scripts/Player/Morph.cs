@@ -12,6 +12,7 @@ public class Morph : MonoBehaviour
     {
         this.soldierMorph = this.GetComponentInChildren<Soldier>(true);
         this.shipMorph = this.GetComponentInChildren<Ship>(true);
+        this.MorphIntoShip();
     }
 
     void Update()

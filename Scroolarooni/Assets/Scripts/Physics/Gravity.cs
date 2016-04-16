@@ -16,7 +16,7 @@ public class Gravity : MonoBehaviour
     {
         Vector3 finalSpeed = new Vector3(gravitySpeed.x, gravitySpeed.y) * 10f;
         Vector3 resultingSpeed = Vector3.SmoothDamp(this.transform.position, this.transform.position + finalSpeed, ref currentVelocity, 0.55f) - this.transform.position;
-        movement.Increase(resultingSpeed);
+        movement.Push(resultingSpeed);
     }
 
     public void Reset()
