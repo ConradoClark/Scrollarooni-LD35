@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Camera\Autoscrolling.cs" />
     <Compile Include="Assets\Scripts\Camera\AutoscrollingMark.cs" />
     <Compile Include="Assets\Scripts\Camera\FollowScrollMovement.cs" />
+    <Compile Include="Assets\Scripts\Effects\ColorFlicker.cs" />
     <Compile Include="Assets\Scripts\Effects\RandomRotation_Fixed.cs" />
     <Compile Include="Assets\Scripts\Effects\RandomZRotation.cs" />
     <Compile Include="Assets\Scripts\Enemies\BaseEnemyBehaviour.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Assets\Scripts\Physics\Gravity.cs" />
     <Compile Include="Assets\Scripts\Physics\Movement.cs" />
     <Compile Include="Assets\Scripts\Physics\PlatformMovement.cs" />
+    <Compile Include="Assets\Scripts\Player\AnimManager.cs" />
     <Compile Include="Assets\Scripts\Player\Morph.cs" />
     <Compile Include="Assets\Scripts\Player\MorphBase.cs" />
     <Compile Include="Assets\Scripts\Player\Ship.cs" />

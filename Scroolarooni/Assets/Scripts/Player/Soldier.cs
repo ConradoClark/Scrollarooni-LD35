@@ -10,6 +10,7 @@ public class Soldier : MorphBase
     public PlatformMovement platformMovement;
     public SoldierWeapon soldierWeapon;
     public Queue<Coroutine> waitingForAvailability;
+    public AnimManager animManager;
 
     private const string ObstacleLayer = "Obstacle";
 
@@ -42,6 +43,10 @@ public class Soldier : MorphBase
         else
         {
             platformMovement.OnGround = false;
+            if (!animManager.animator.GetCurrentAnimatorClipInfo(0).Any(clipInfo => clipInfo.clip.name == "Soldier_Jumping"))
+            {
+                animManager.QueueAnimation("Soldier_Falling");
+            }
         }
     }
 
