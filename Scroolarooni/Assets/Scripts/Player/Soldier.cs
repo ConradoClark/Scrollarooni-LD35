@@ -11,30 +11,53 @@ public class Soldier : MorphBase
     public SoldierWeapon soldierWeapon;
     public Queue<Coroutine> waitingForAvailability;
     public AnimManager animManager;
+    public Health health;
+    public SpriteRenderer sprRenderer;
 
     private const string ObstacleLayer = "Obstacle";
+    private const string Enemies = "Enemies";
+    private const string CollectiblesLayer = "Collectibles";
+    private bool blinking;
 
     private void Start()
     {
         StartAllCoroutines();
+        this.waitingForAvailability = new Queue<Coroutine>();
     }
 
     public override void MorphInto()
     {
         this.gravityComponent.Reset();
-        base.MorphInto();
+        base.MorphInto();        
+        this.StartAllCoroutines();
+        this.sprRenderer.enabled = true;
     }
 
     public override void Deactivate()
     {
         base.Deactivate();
+        this.DestroyAllBeams();
+        this.platformMovement.UnblockFlip();
+    }
+
+    private void DestroyAllBeams()
+    {
+        var beams = this.GetComponentsInChildren<Beam>();
+        foreach(var beam in beams)
+        {
+            GameObject.Destroy(beam.gameObject);
+        }
     }
 
     private void Update()
     {
         var layers = new[] { LayerMask.NameToLayer(ObstacleLayer) };
+        var layersEnemy = new[] { LayerMask.NameToLayer(Enemies) };
 
-        var collisions = this.collisionComponents.SelectMany(c => c.GetAllCollisions()).Where(c => layers.Contains(c.Collision.collider.gameObject.layer));
+        var collisions = this.collisionComponents.SelectMany(c => c.GetAllCollisions())
+            .Where(c => c.Collision.collider!=null)
+            .Where(c => layers.Contains(c.Collision.collider.gameObject.layer));
+
         if (collisions.Any(c=>c.Direction == Vector2.down))
         {
             platformMovement.OnGround = true;
@@ -48,6 +71,45 @@ public class Soldier : MorphBase
                 animManager.QueueAnimation("Soldier_Falling");
             }
         }
+
+        if (collisions.Any(c => c.Direction == Vector2.up))
+        {
+            platformMovement.CancelJump();
+            //gravityComponent.Reset();
+        }
+
+        var enemyCollisions = this.collisionComponents.SelectMany(c => c.GetAllCollisions())
+            .Where(c => c.Collision.collider!=null)
+            .Where(c => layersEnemy.Contains(c.Collision.collider.gameObject.layer));
+
+        if (enemyCollisions.Any())
+        {
+            if (!blinking)
+            {
+                this.health.Hurt(1);
+                StartCoroutine(Blink());
+            }
+        }
+
+        var collectiblesCollisions = this.collisionComponents.SelectMany(c => c.GetAllCollisions()).Where(c => c.Collision.collider.gameObject.layer == LayerMask.NameToLayer(CollectiblesLayer));
+        foreach (var collision in collectiblesCollisions)
+        {
+            BaseCollectible collectible = collision.Collision.collider.gameObject.GetComponent<BaseCollectible>();
+            collectible.Collect();
+        }
+    }
+
+    IEnumerator Blink()
+    {
+        blinking = true;
+        for (int i = 0; i < 6; i++)
+        {
+            sprRenderer.enabled = false;
+            yield return new WaitForSeconds(0.1f);
+            sprRenderer.enabled = true;
+            yield return new WaitForSeconds(0.1f);
+        }
+        blinking = false;
     }
 
     IEnumerator FiringControls()

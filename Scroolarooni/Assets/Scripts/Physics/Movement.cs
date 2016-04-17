@@ -11,6 +11,12 @@ public class Movement : MonoBehaviour
     private bool hasClampMaxX;
     private bool hasClampMaxY;
 
+    private bool dead;
+    public void Kill()
+    {
+        this.dead = true;
+    }
+
     void Start()
     {
 
@@ -28,6 +34,7 @@ public class Movement : MonoBehaviour
 
     void LateUpdate()
     {
+        if (dead) return;
         var desiredPosition = this.transform.position + currentSpeed;
         var x = desiredPosition.x;
         var y = desiredPosition.y;

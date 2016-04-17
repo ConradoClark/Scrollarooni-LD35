@@ -15,6 +15,9 @@ GameObject:
   - 61: {fileID: 6196968}
   - 198: {fileID: 19893996}
   - 199: {fileID: 19936342}
+  - 114: {fileID: 11436550}
+  - 114: {fileID: 11403880}
+  - 114: {fileID: 11494838}
   m_Layer: 13
   m_Name: ShipBullet
   m_TagString: Untagged
@@ -79,6 +82,17 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &11403880
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 104586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e2eaf140deb2b740b1d7269c3762644, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &11410226
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -92,6 +106,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   positionInSlot1: {x: 25, y: 4}
   positionInSlot2: {x: 25, y: -8}
+--- !u!114 &11436550
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 104586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b7b60e1c2b0e0d48aa1cde0252f7c6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitialAmount: 2
+  TickCooldown: 10
+--- !u!114 &11494838
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 104586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8b2fd22ff3b9944293dba792d1365b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 0}
+  cameraName: Main Camera
+  screenSize: {x: 960, y: 540}
 --- !u!198 &19893996
 ParticleSystem:
   m_ObjectHideFlags: 1

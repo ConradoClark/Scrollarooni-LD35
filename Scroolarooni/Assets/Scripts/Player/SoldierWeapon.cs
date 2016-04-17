@@ -10,6 +10,9 @@ public class SoldierWeapon : MonoBehaviour
     bool charging;
     public PlatformMovement platformMovement;
     public int maximumBeamStrength;
+    private float chargeTime;
+    public float minimumChargeTime;
+    public float damagePerCharge;
 
     private ParticleSystem.EmissionModule emission;
     ParticleSystem.MinMaxCurve initialRate;
@@ -40,9 +43,17 @@ public class SoldierWeapon : MonoBehaviour
 
     public void Release()
     {
-        this.emission.enabled = false;
-        this.charging = false;
-        StartCoroutine(ReleaseBurst());
+        if (charging)
+        {
+            this.emission.enabled = false;
+            this.charging = false;
+
+            if (chargeTime > minimumChargeTime)
+            {
+                StartCoroutine(ReleaseBurst());
+            }
+            this.chargeTime = 0f;
+        }
     }
 
     IEnumerator FixDirection()
@@ -60,6 +71,7 @@ public class SoldierWeapon : MonoBehaviour
         {
             beamStrength++;
             if (beamStrength >= maximumBeamStrength) beamStrength = maximumBeamStrength;
+            chargeTime += 0.25f;
             yield return new WaitForSeconds(0.25f);
         }
     }
@@ -82,6 +94,12 @@ public class SoldierWeapon : MonoBehaviour
         beam.transform.localPosition = new Vector3(platformMovement.IsFlipped() ? -beamPrefabOffset.x : beamPrefabOffset.x, beamPrefabOffset.y);
         beam.transform.localRotation = Quaternion.Euler(89f, 0, 0);
 
+        var damage = beam.GetComponent<Damage>();
+        damage.SetDamage(damage.InitialAmount + (uint)(damagePerCharge * chargeTime));
+
+        var beamComponent = beam.AddComponent<Beam>();
+        beamComponent.Direction = platformMovement.IsFlipped() ? Vector2.left : Vector2.right;
+
         float currentVelocity = 0f;
         float dir = platformMovement.IsFlipped() ? -1 : 1;
         for (int i = 0; i < beamStrength; i++)
@@ -94,14 +112,14 @@ public class SoldierWeapon : MonoBehaviour
                 yield return 1;
             }
         }
-        
+
         yield return new WaitForSeconds(beamStrength / 5f);
 
         for (int i = 0; i < beamStrength; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                beam.transform.localRotation = Quaternion.Slerp(beam.transform.localRotation, Quaternion.Euler(89f, 0, 0), 0.0045f * (j + 1) * (i + 1));
+                beam.transform.localRotation = Quaternion.Slerp(beam.transform.localRotation, Quaternion.Euler(89f, 0, 0), 0.0025f * beamStrength * (j + 1) * (i + 1));
                 yield return 1;
             }
         }

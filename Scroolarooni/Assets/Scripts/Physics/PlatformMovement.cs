@@ -5,6 +5,7 @@ public class PlatformMovement : MonoBehaviour
 {
     public SpriteRenderer sprRenderer;
     public float maxSpeed;
+    public float jumpStrength;
     public Movement movement;
     Vector3 currentVelocity;
     Vector3 currentVelocityY;
@@ -29,11 +30,16 @@ public class PlatformMovement : MonoBehaviour
         blockFlip = false;
     }
 
+    public void CancelJump()
+    {
+        this.yAxis = 0;
+    }
+
     void Update()
     {
         if (Input.GetAxisRaw("Vertical") > 0 && this.OnGround)
         {
-            yAxis = 5;
+            yAxis = jumpStrength;
             animManager.QueueAnimationWaitToFinish("Soldier_Jumping");
         }
 

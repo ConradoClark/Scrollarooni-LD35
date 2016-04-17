@@ -16,4 +16,9 @@ public class ColorFlicker : MonoBehaviour
     {
         sprRenderer.color = this.originalColor + this.originalColor * new Color(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * magnitude;
     }
+
+    public void ChangeOriginalColor(Color color)
+    {
+        this.originalColor = color;
+    }
 }

@@ -9,6 +9,7 @@ public class TextComponent : MonoBehaviour
     public string Text;
     public string Font;
     public Material material;
+    public int orderingLayer;
 
     private string innerText;
     private Dictionary<string, Sprite> fontSprites;
@@ -56,12 +57,12 @@ public class TextComponent : MonoBehaviour
                 SpriteRenderer charRenderer = character.AddComponent<SpriteRenderer>();
                 charRenderer.sprite = fontSprites[currentChar];
                 charRenderer.material = material;
+                charRenderer.sortingOrder = orderingLayer;
                 character.transform.SetParent(this.transform, false);
                 character.transform.localPosition = new Vector3(c * charRenderer.sprite.bounds.size.x, r * charRenderer.sprite.bounds.size.y);
                 glyphs.Add(charRenderer);
             }
         }
-
     }
 
     private Dictionary<string, Sprite> Translate(Sprite[] sprites)
@@ -86,6 +87,7 @@ public class TextComponent : MonoBehaviour
         switch (symbol)
         {
             // add others
+            case "Sym_Exclamation": return '!';
             case "Sym_Slash": return '/';
             case "Sym_Space": return ' ';
             default: return ' ';

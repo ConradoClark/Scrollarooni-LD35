@@ -17,12 +17,14 @@ public class Ship : MorphBase
 
     //put this elsewhere
     private const string ObstacleLayer = "Obstacle";
-    private const string Enemies= "Enemies";
+    private const string EnemiesLayer = "Enemies";
+    private const string CollectiblesLayer = "Collectibles";
 
     public override void MorphInto()
     {
         base.MorphInto();
         waitingForAvailability = new Queue<Coroutine>();
+        this.sprRenderer.enabled = true;
         this.StartAllCoroutines();
     }
 
@@ -34,30 +36,38 @@ public class Ship : MorphBase
     private void StartAllCoroutines()
     {
         this.StartCoroutine(FiringControls());
-        this.StartCoroutine(CollideOnObstaclesOrEnemies());
+        this.StartCoroutine(HandleCollisions());
     }
 
-    IEnumerator CollideOnObstaclesOrEnemies()
+    IEnumerator HandleCollisions()
     {
         while (this.enabled)
         {
-            var layers = new[] { LayerMask.NameToLayer(ObstacleLayer), LayerMask.NameToLayer(Enemies) };
+            var layers = new[] { LayerMask.NameToLayer(ObstacleLayer), LayerMask.NameToLayer(EnemiesLayer) };
 
-            var collisions = this.collisionComponents.SelectMany(c=>c.GetAllCollisions()).Where(c => layers.Contains(c.Collision.collider.gameObject.layer));
+            var collisions = this.collisionComponents.SelectMany(c => c.GetAllCollisions()).Where(c => layers.Contains(c.Collision.collider.gameObject.layer));
             if (collisions.Any())
-            {                
+            {
                 if (!blinking)
                 {
                     this.health.Hurt(1);
                     StartCoroutine(Blink());
 
-                    if (collisions.Any(c=>c.Collision.collider.gameObject.layer == layers.First()))
+                    if (collisions.Any(c => c.Collision.collider.gameObject.layer == layers.First()))
                     {
                         var sum = collisions.Select(c => c.Direction).Aggregate((a, b) => a + b);
                         StartCoroutine(Push(sum.normalized));
                     }
                 }
             }
+
+            var collectiblesCollisions = this.collisionComponents.SelectMany(c => c.GetAllCollisions()).Where(c => c.Collision.collider.gameObject.layer == LayerMask.NameToLayer(CollectiblesLayer));
+            foreach(var collision in collectiblesCollisions)
+            {
+                BaseCollectible collectible = collision.Collision.collider.gameObject.GetComponent<BaseCollectible>();
+                collectible.Collect();
+            }
+
             yield return 1;
         }
 

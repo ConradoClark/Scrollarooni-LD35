@@ -32,10 +32,9 @@ public class Autoscrolling : MonoBehaviour
         //}
         for (int i = 0; i < Scrollers.Length; i++)
         {
-            if (Scrollers[i].BoxCollider.bounds.Intersects(playerCollider.bounds))
+            if (Vector2.Distance(Scrollers[i].transform.position, this.transform.position) < Scrollers[i].bounds.sizeDelta.magnitude)
             {
                 activeScroll = i;
-                score.Increase(10);
                 break;
             }
         }

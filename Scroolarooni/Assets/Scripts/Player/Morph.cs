@@ -11,11 +11,14 @@ public class Morph : MonoBehaviour
     private ParticleSystem.EmissionModule emissionModule;
     private bool morphing;
 
+    public delegate void MorphDelegate(MorphType morph);
+    public event MorphDelegate OnMorph;
+
     void Start()
     {
         this.soldierMorph = this.GetComponentInChildren<Soldier>(true);
         this.shipMorph = this.GetComponentInChildren<Ship>(true);
-        this.shipMorph.MorphInto();
+        StartCoroutine(MorphIntoSoldier(true));
 
         this.morphingParticleEffect = this.GetComponent<ParticleSystem>();
         emissionModule = this.morphingParticleEffect.emission;
@@ -30,36 +33,51 @@ public class Morph : MonoBehaviour
             if (morphStatus == 0)
             {
                 //remove this too
-                StartCoroutine(this.MorphIntoSoldier());
+                StartCoroutine(this.MorphIntoShip());
                 morphStatus = 1;
             }
             else
             {
-                StartCoroutine(this.MorphIntoShip());
+                StartCoroutine(this.MorphIntoSoldier());
                 morphStatus = 0;
             }
         }
     }
 
-    IEnumerator MorphIntoSoldier()
+    IEnumerator MorphIntoSoldier(bool playEffect=true)
     {
         morphing = true;
-        emissionModule.enabled = true;
-        yield return new WaitForSeconds(morphingParticleEffect.duration);
-        emissionModule.enabled = false;
+        if (OnMorph != null)
+        {
+            OnMorph(MorphType.Soldier); // change before the effect, or after??
+        }
+        if (playEffect)
+        {
+            emissionModule.enabled = true;
+            yield return new WaitForSeconds(morphingParticleEffect.duration);
+            emissionModule.enabled = false;
+        }
         shipMorph.Deactivate();
         soldierMorph.MorphInto();
-        morphing = false;
+        
+        morphing = false;        
     }
 
-    IEnumerator MorphIntoShip()
+    IEnumerator MorphIntoShip(bool playEffect = true)
     {
         morphing = true;
-        emissionModule.enabled = true;
-        yield return new WaitForSeconds(morphingParticleEffect.duration);
-        emissionModule.enabled = false;
+        if (OnMorph != null)
+        {
+            OnMorph(MorphType.Ship);
+        }
+        if (playEffect)
+        {
+            emissionModule.enabled = true;
+            yield return new WaitForSeconds(morphingParticleEffect.duration);
+            emissionModule.enabled = false;
+        }
         soldierMorph.Deactivate();
-        shipMorph.MorphInto();
+        shipMorph.MorphInto();        
         morphing = false;
     }
 }

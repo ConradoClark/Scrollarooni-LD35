@@ -11,27 +11,23 @@ public class ShipWeapon : MonoBehaviour
 
     void Start()
     {
+        //nvm, infinite ammo
         currentAmmo = maxAmmo;
     }
 
     public void Fire()
     {
-        if (currentAmmo > 0)
-        {
-            var dot1 = GameObject.Instantiate(projectile1);
-            var dot2 = GameObject.Instantiate(projectile2);
+        var dot1 = GameObject.Instantiate(projectile1);
+        var dot2 = GameObject.Instantiate(projectile2);
 
-            BaseBullet bullet1 = dot1.GetComponent<BaseBullet>();
-            BaseBullet bullet2 = dot2.GetComponent<BaseBullet>();
+        BaseBullet bullet1 = dot1.GetComponent<BaseBullet>();
+        BaseBullet bullet2 = dot2.GetComponent<BaseBullet>();
 
-            dot1.transform.SetParent(this.transform, false);
-            dot2.transform.SetParent(this.transform, false);
-            dot1.transform.localPosition = bullet1.positionInSlot1;
-            dot2.transform.localPosition = bullet2.positionInSlot2;
-            dot1.transform.SetParent(null);
-            dot2.transform.SetParent(null);
-
-            currentAmmo-=2;
-        }
+        dot1.transform.SetParent(this.transform, false);
+        dot2.transform.SetParent(this.transform, false);
+        dot1.transform.localPosition = bullet1.positionInSlot1;
+        dot2.transform.localPosition = bullet2.positionInSlot2;
+        dot1.transform.SetParent(null);
+        dot2.transform.SetParent(null);
     }
 }

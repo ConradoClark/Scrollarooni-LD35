@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 public class Collision : MonoBehaviour
 {
@@ -11,38 +12,64 @@ public class Collision : MonoBehaviour
 
     void Start()
     {
-
+        overlapping = new List<RaycastHit2D>();
     }
 
     Vector2 raycastDistance = Vector2.one;
     public LayerMask layerMask;
     public float boxCastScale;
     public Vector2 collisionBoxSize;
+    public Vector2 offset;
 
     CollisionWithDirection topCollision, bottomCollision, leftCollision, rightCollision;
+    List<RaycastHit2D> overlapping;
 
-    public CollisionWithDirection[] GetAllCollisions()
+    public RaycastHit2D[] GetOverlappingBoundaries()
     {
-        return new[] { topCollision, bottomCollision, leftCollision, rightCollision }
-           .Where(c => c != null)
-           .ToArray();
+        if (this.overlapping == null)
+        {
+            this.overlapping = new List<RaycastHit2D>();
+        }
+
+        return this.overlapping.ToArray();
+    }
+
+    public CollisionWithDirection[] GetAllCollisions(bool includeOverlapping = false)
+    {
+        var collisions = new[] { topCollision, bottomCollision, leftCollision, rightCollision }
+           .Where(c => c != null);
+
+        var additionalCollisions = new CollisionWithDirection[0];
+
+        if (includeOverlapping)
+        {
+            additionalCollisions = this.GetOverlappingBoundaries().Select(b => new CollisionWithDirection(Vector2.zero, b)).ToArray();
+
+            //if (additionalCollisions.Any())
+            //{
+            //    Debug.Break();
+            //}
+        }
+
+        return collisions.Concat(additionalCollisions).ToArray();
     }
 
     void Update()
     {
+        overlapping.Clear();
         topCollision = bottomCollision = leftCollision = rightCollision = null;
         this.raycastDistance = movement.currentSpeed;
-        TrySolvePossibleCollision(Vector2.down, Vector2.zero, CheckBottomCollision);
-        TrySolvePossibleCollision(Vector2.up, Vector2.zero, CheckTopCollision);
-        TrySolvePossibleCollision(Vector2.right, Vector2.zero, CheckRightCollision);
-        TrySolvePossibleCollision(Vector2.left, Vector2.zero, CheckLeftCollision);
+        TrySolvePossibleCollision(Vector2.down, offset, CheckBottomCollision);
+        TrySolvePossibleCollision(Vector2.up, offset, CheckTopCollision);
+        TrySolvePossibleCollision(Vector2.right, offset, CheckRightCollision);
+        TrySolvePossibleCollision(Vector2.left, offset, CheckLeftCollision);
     }
 
     private void CheckBottomCollision(RaycastHit2D hit)
     {
         if (hit.normal != Vector2.up) return;
 
-        var clampYMin = hit.point.y + collisionBoxSize.y / 2;
+        var clampYMin = hit.point.y + collisionBoxSize.y / 2 - offset.y;
         if (hit.collider.gameObject.layer == LayerMask.NameToLayer(ObstacleLayer))
         {
             movement.ClampYMin(clampYMin);
@@ -57,7 +84,7 @@ public class Collision : MonoBehaviour
     {
         if (hit.normal != Vector2.down) return;
 
-        var clampYMax = hit.point.y - collisionBoxSize.y / 2;
+        var clampYMax = hit.point.y - collisionBoxSize.y / 2 - offset.y;
         if (hit.collider.gameObject.layer == LayerMask.NameToLayer(ObstacleLayer))
         {
             movement.ClampYMax(clampYMax);
@@ -72,7 +99,7 @@ public class Collision : MonoBehaviour
     {
         if (hit.normal != Vector2.right) return;
 
-        var clampXMin = hit.point.x + collisionBoxSize.x / 2;
+        var clampXMin = hit.point.x + collisionBoxSize.x / 2 - offset.x;
         if (hit.collider.gameObject.layer == LayerMask.NameToLayer(ObstacleLayer))
         {
             movement.ClampXMin(clampXMin);
@@ -87,7 +114,7 @@ public class Collision : MonoBehaviour
     {
         if (hit.normal != Vector2.left) return;
 
-        var clampXMax = hit.point.x - collisionBoxSize.x / 2;
+        var clampXMax = hit.point.x - collisionBoxSize.x / 2 - offset.x;
         if (hit.collider.gameObject.layer == LayerMask.NameToLayer(ObstacleLayer))
         {
             movement.ClampXMax(clampXMax);
@@ -111,19 +138,28 @@ public class Collision : MonoBehaviour
                                                        Mathf.Abs(direction.y * raycastDistance.y) + Mathf.Abs(direction.x) * collisionBoxSize.y * boxCastScale));
         DebugRect(rect2);
 
-        //+ direction.y * collisionBoxSize.x  * boxCastScale
-        // direction.x*collisionBoxSize.x
-        // boxCastSize.x * direction.x
-        // 
-        var hits = Physics2D.BoxCastAll(rect2.position, rect2.size, 0, direction, 0f, layerMask);
-        var closestHit = hits.OrderByDescending(hit => hit.normal == -direction).ThenBy(hit => hit.distance).FirstOrDefault();
+        //scrap this boxcast, meh
+        //var hits = Physics2D.BoxCastAll(rect2.position, rect2.size, 0, direction, 0f, layerMask);
+        var halfway = new Vector2(Mathf.Abs(direction.y) * rect2.size.x / 2, Mathf.Abs(direction.x) * rect2.size.y / 2);
+
+        // triple raycast ftw
+        var hits = Physics2D.RaycastAll(rect2.position, direction, Mathf.Abs(direction.x * rect2.size.x + direction.y * rect2.size.x), layerMask);
+        var hits2 = Physics2D.RaycastAll(rect2.position + halfway, direction, Mathf.Abs(direction.x * rect2.size.x + direction.y * rect2.size.x), layerMask);
+        var hits3 = Physics2D.RaycastAll(rect2.position + halfway*2, direction, Mathf.Abs(direction.x * rect2.size.x + direction.y * rect2.size.x), layerMask);
+
+        var allHits = hits.Concat(hits2).Concat(hits3);
+
+        var closestHit = allHits.OrderByDescending(hit => hit.normal == -direction).ThenBy(hit => hit.distance).FirstOrDefault();
         bool result = closestHit != default(RaycastHit2D);
         if (result)
         {
+            if (closestHit.collider.bounds.Intersects(new Bounds(rect2.position, rect2.size)))
+            {
+                overlapping.Add(closestHit);
+            }
             onDetectableCollision(closestHit);
         }
-        //return result;
-        return false;
+        return result;
     }
 
     void DebugRect(Rect rect)
