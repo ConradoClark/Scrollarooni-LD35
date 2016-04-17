@@ -15,11 +15,11 @@ TagManager:
   - 
   - Map
   - Background
-  - Actors
+  - Enemies
   - Player
   - Obstacle
-  - 
-  - 
+  - FriendlyBullets
+  - EnemyBullets
   - 
   - 
   - 

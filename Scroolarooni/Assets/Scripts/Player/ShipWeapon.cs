@@ -9,6 +9,11 @@ public class ShipWeapon : MonoBehaviour
     public int maxAmmo;
     private int currentAmmo;
 
+    void Start()
+    {
+        currentAmmo = maxAmmo;
+    }
+
     public void Fire()
     {
         if (currentAmmo > 0)
@@ -25,6 +30,8 @@ public class ShipWeapon : MonoBehaviour
             dot2.transform.localPosition = bullet2.positionInSlot2;
             dot1.transform.SetParent(null);
             dot2.transform.SetParent(null);
+
+            currentAmmo-=2;
         }
     }
 }

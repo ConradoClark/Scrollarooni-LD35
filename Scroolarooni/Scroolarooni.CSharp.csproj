@@ -71,6 +71,18 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Camera\Autoscrolling.cs" />
     <Compile Include="Assets\Scripts\Camera\AutoscrollingMark.cs" />
+    <Compile Include="Assets\Scripts\Camera\FollowScrollMovement.cs" />
+    <Compile Include="Assets\Scripts\Effects\RandomRotation_Fixed.cs" />
+    <Compile Include="Assets\Scripts\Effects\RandomZRotation.cs" />
+    <Compile Include="Assets\Scripts\Enemies\BaseEnemyBehaviour.cs" />
+    <Compile Include="Assets\Scripts\Enemies\EnemyMovement.cs" />
+    <Compile Include="Assets\Scripts\Enemies\EnemySpawnData.cs" />
+    <Compile Include="Assets\Scripts\Enemies\LinearMovement.cs" />
+    <Compile Include="Assets\Scripts\Enemies\SpawnPoint.cs" />
+    <Compile Include="Assets\Scripts\General\BaseBulletBehaviour.cs" />
+    <Compile Include="Assets\Scripts\General\Death.cs" />
+    <Compile Include="Assets\Scripts\General\Health.cs" />
+    <Compile Include="Assets\Scripts\General\Lifetime.cs" />
     <Compile Include="Assets\Scripts\Physics\Collision.cs" />
     <Compile Include="Assets\Scripts\Physics\CollisionWIthDirection.cs" />
     <Compile Include="Assets\Scripts\Physics\FourWayMovement.cs" />
@@ -82,7 +94,11 @@
     <Compile Include="Assets\Scripts\Player\Ship.cs" />
     <Compile Include="Assets\Scripts\Player\ShipWeapon.cs" />
     <Compile Include="Assets\Scripts\Player\Soldier.cs" />
+    <Compile Include="Assets\Scripts\Player\SoldierWeapon.cs" />
     <Compile Include="Assets\Scripts\Sprites\TiledSprite.cs" />
+    <Compile Include="Assets\Scripts\UI\HealthCounter.cs" />
+    <Compile Include="Assets\Scripts\UI\Score.cs" />
+    <Compile Include="Assets\Scripts\UI\TextComponent.cs" />
     <Compile Include="Assets\Scripts\Weapons\BaseBullet.cs" />
     <Compile Include="Assets\Scripts\Weapons\DnaBullet1.cs" />
     <Compile Include="Assets\Scripts\Weapons\DnaBullet2.cs" />

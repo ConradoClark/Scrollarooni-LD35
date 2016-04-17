@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Movement : MonoBehaviour
 {
-    public Vector3 currentSpeed;
+    public Vector3 currentSpeed { get; private set; }
     private Vector2 clampX;
     private Vector2 clampY;
     private bool hasClampMinX;
@@ -31,6 +31,12 @@ public class Movement : MonoBehaviour
         var desiredPosition = this.transform.position + currentSpeed;
         var x = desiredPosition.x;
         var y = desiredPosition.y;
+
+        if (hasClampMinX || hasClampMaxX)
+        {
+            x = Mathf.Clamp(desiredPosition.x, hasClampMinX ? clampX.x : desiredPosition.x, hasClampMaxX ? clampX.y : desiredPosition.x);
+        }
+
         if (hasClampMinY || hasClampMaxY)
         {
             y = Mathf.Clamp(desiredPosition.y, hasClampMinY ? clampY.x : desiredPosition.y, hasClampMaxY ? clampY.y : desiredPosition.y);
@@ -62,5 +68,17 @@ public class Movement : MonoBehaviour
     {
         this.hasClampMaxY = true;
         clampY.y = yMax;
+    }
+
+    public void ClampXMin(float xMin)
+    {
+        this.hasClampMinX = true;
+        clampX.x = xMin;
+    }
+
+    public void ClampXMax(float xMax)
+    {
+        this.hasClampMaxX = true;
+        clampX.y = xMax;
     }
 }

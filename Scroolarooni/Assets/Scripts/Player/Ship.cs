@@ -8,13 +8,16 @@ public class Ship : MorphBase
     public ShipWeapon weapon;
     public Movement movement;
     public FourWayMovement fourWayMovement;
-    public Collision collisionComponent;
+    public Collision[] collisionComponents;
     public Queue<Coroutine> waitingForAvailability;
-    public bool blinking;
+    private bool blinking;
     public SpriteRenderer sprRenderer;
     public float collisionPushStrength;
+    public Health health;
+
     //put this elsewhere
     private const string ObstacleLayer = "Obstacle";
+    private const string Enemies= "Enemies";
 
     public override void MorphInto()
     {
@@ -31,23 +34,31 @@ public class Ship : MorphBase
     private void StartAllCoroutines()
     {
         this.StartCoroutine(FiringControls());
-        this.StartCoroutine(CollideOnObstacles());
+        this.StartCoroutine(CollideOnObstaclesOrEnemies());
     }
 
-    IEnumerator CollideOnObstacles()
+    IEnumerator CollideOnObstaclesOrEnemies()
     {
         while (this.enabled)
         {
-            var collision = this.collisionComponent.GetAllCollisions().FirstOrDefault(c => c.Collision.collider.gameObject.layer == LayerMask.NameToLayer(ObstacleLayer));
-            if (collision!=null)
-            {
+            var layers = new[] { LayerMask.NameToLayer(ObstacleLayer), LayerMask.NameToLayer(Enemies) };
+
+            var collisions = this.collisionComponents.SelectMany(c=>c.GetAllCollisions()).Where(c => layers.Contains(c.Collision.collider.gameObject.layer));
+            if (collisions.Any())
+            {                
                 if (!blinking)
                 {
+                    this.health.Hurt(1);
                     StartCoroutine(Blink());
-                    StartCoroutine(Push(collision.Direction));
+
+                    if (collisions.Any(c=>c.Collision.collider.gameObject.layer == layers.First()))
+                    {
+                        var sum = collisions.Select(c => c.Direction).Aggregate((a, b) => a + b);
+                        StartCoroutine(Push(sum.normalized));
+                    }
                 }
             }
-            yield return 1; //brb
+            yield return 1;
         }
 
         if (waitingForAvailability.Count == 0)
@@ -113,6 +124,7 @@ public class Ship : MorphBase
         {
             yield return 1;
         }
+        this.waitingForAvailability.Dequeue();
         StartAllCoroutines();
     }
 }

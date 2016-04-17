@@ -12,6 +12,9 @@ public class Autoscrolling : MonoBehaviour
     private BoxCollider2D playerCollider;
     int activeScroll=-1;
 
+    //test
+    public Score score;
+
     void Start()
     {
         playerCollider = PlayerReference.GetComponent<BoxCollider2D>();
@@ -32,13 +35,19 @@ public class Autoscrolling : MonoBehaviour
             if (Scrollers[i].BoxCollider.bounds.Intersects(playerCollider.bounds))
             {
                 activeScroll = i;
+                score.Increase(10);
                 break;
             }
         }
         transform.position = Vector3.SmoothDamp(transform.position, transform.position + GetCurrentScrollSpeed(), ref velocity, dampTime);
     }
 
-    Vector3 GetCurrentScrollSpeed()
+    public float GetDampTime()
+    {
+        return this.dampTime;
+    }
+
+    public Vector3 GetCurrentScrollSpeed()
     {
         if (activeScroll==-1) return new Vector3(defaultScroll.x, defaultScroll.y);
         var scroll = Scrollers[activeScroll];
